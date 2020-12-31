@@ -5,13 +5,6 @@ import { readSecrets } from "runtime/secrets.ts";
 const image = "rust:1.48-buster";
 
 export async function run(ws: Workspace) {
-    await Docker.run(
-        `cargo build --bins --release --target-dir ./target && \
-            mv target/release/landis /repo/landis`,
-        {
-            image: image,
-        },
-    );
     const tag = `landis/landis:latest`;
 
     pushStep(`Build Landis Image`);
