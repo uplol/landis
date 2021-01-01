@@ -5,7 +5,7 @@ WORKDIR /src
 COPY . ./
 RUN cargo build --bins --release
 
-FROM alpine:3.12
+FROM ubuntu:20.04
 
 RUN mkdir -p /app \
     && mkdir -p /app/out \
