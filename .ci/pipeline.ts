@@ -1,20 +1,10 @@
-import {
-    Job,
-    pushStep,
-} from "https://pkg.buildyboi.ci/buildy/core@latest/mod.ts";
-import * as Docker from "https://pkg.buildyboi.ci/buildy/docker@latest/mod.ts";
-import { readSecrets } from "https://pkg.buildyboi.ci/buildy/core@latest/secrets.ts";
+import { Workspace, pushStep, spawnChildJob } from "runtime/core.ts";
+import * as Docker from "pkg/buildy/docker@latest/mod.ts";
+import { readSecrets } from "runtime/secrets.ts";
 
 const image = "rust:1.48-buster";
 
-export async function run(job: Job) {
-    await Docker.run(
-        `cargo build --bins --release --target-dir ./target && \
-            mv target/release/landis /repo/landis`,
-        {
-            image: image,
-        },
-    );
+export async function run(ws: Workspace) {
     const tag = `landis/landis:latest`;
 
     pushStep(`Build Landis Image`);
