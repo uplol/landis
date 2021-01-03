@@ -51,21 +51,7 @@
 
 <body>
   <div id="map" class="map"></div>
-
-  <script type="text/javascript">
-    var map = L.map("map", {
-      crs: L.CRS.Simple,
-    }).setView([0, 0], 3);
-    L.tileLayer("/tiles/{z}/{x}/{y}/tile.png", {
-      attribution: "fastnbt",
-      minNativeZoom: 3,
-      maxNativeZoom: 3,
-      minZoom: 0,
-      maxZoom: 5,
-      tileSize: 512,
-      noWrap: true,
-    }).addTo(map);
-  </script>
+  <script src="js/map.js"></script>
 </body>
 
 </html>
