@@ -1,41 +1,28 @@
-use std::{
-    io::Cursor,
-    path::{Path, PathBuf},
+use fastanvil::{
+    render_region, CCoord, Dimension, HeightMode, JavaChunk, RCoord, RegionFileLoader,
+    TopShadeRenderer,
 };
-
-use tokio::{fs::File, io::AsyncReadExt};
+use std::path::{Path, PathBuf};
 
 use crate::palette::BlockPalette;
 
-pub async fn render_region(palette: BlockPalette, path: PathBuf) {
-    let buffer = {
-        // Quickly read it all into a vec so we can work with it as we please.
-        let mut file = File::open(&path).await.unwrap();
-        let mut buffer = Vec::with_capacity(8388608 /* 8MB */);
-        file.read_to_end(&mut buffer).await.unwrap();
-        buffer
-    };
-
-    let (x, z) = coords_from_region(path.as_path()).unwrap();
-
-    let region = fastanvil::Region::new(Cursor::new(buffer));
-
-    let map = fastanvil::RegionMap::new(x, z, [0, 0, 0, 0]);
-    let mut drawer = fastanvil::RegionBlockDrawer::new(map, &palette);
-    fastanvil::parse_region(region, &mut drawer).unwrap_or_default();
-
-    let rendered_map = fastanvil::IntoMap::into_map(drawer);
-
+pub async fn render_map(palette: BlockPalette, path: PathBuf) {
+    let loader =
+        RegionFileLoader::<JavaChunk>::new(Path::new("mcserver/world/region/").to_path_buf());
+    let dim = Dimension::new(Box::new(loader));
+    let (x, z) = coords_from_region(path.clone().as_path()).unwrap();
+    let drawer = TopShadeRenderer::new(&palette, HeightMode::Calculate);
+    let map = render_region(RCoord(x), RCoord(z), dim, drawer);
     let mut img = image::ImageBuffer::new(512, 512);
 
     for xc in 0..32 {
         for zc in 0..32 {
-            let chunk = rendered_map.chunk(xc, zc);
+            let chunk = map.chunk(CCoord(xc), CCoord(zc));
             for z in 0..16 {
                 for x in 0..16 {
                     let pixel = chunk[z * 16 + x];
-                    let x = xc * 16 + x as usize;
-                    let z = zc * 16 + z as usize;
+                    let x = xc * 16 + x as isize;
+                    let z = zc * 16 + z as isize;
                     img.put_pixel(x as u32, z as u32, image::Rgba(pixel))
                 }
             }

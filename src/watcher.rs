@@ -28,7 +28,7 @@ pub async fn run_watcher() {
                     println!("rendering region");
                     tokio::spawn(async move {
                         // tokio::task::spawn_blocking(move || {
-                        render::render_region(palette_clone, path).await
+                        render::render_map(palette_clone, path).await
                         // })
                         // .await
                         //.ok();
